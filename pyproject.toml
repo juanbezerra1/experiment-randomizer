@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "experiment-randomizer"
+version = "0.1.0"
+description = "Reproducible, auditable randomisation for small experiments: permuted-block arm allocation, balanced condition orders, a tamper-evident session log, a command line and a small desktop window."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Juan de Oliveira Bezerra" }]
+keywords = [
+    "randomization", "randomisation", "permuted-blocks", "latin-square", "williams-design",
+    "crossover", "experiment-design", "reproducibility", "audit-log",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+dependencies = []  # standard library only; the window needs tkinter, which ships with Python
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "mypy>=1.8"]
+
+[project.scripts]
+exprand = "exprand.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/juanbezerra1/experiment-randomizer"
+Issues = "https://github.com/juanbezerra1/experiment-randomizer/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/exprand"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.coverage.run]
+omit = ["*/__main__.py"]  # a one-line entry point, run as a subprocess in tests/test_cli.py
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true

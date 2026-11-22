@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Tooling caches and reports
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# The lock file a running program leaves in a study folder
+.lock
+
+# A real study folder holds the seed and every allocation: keep it out of a public repository.
+# (Name your own study folders like this, or add them here.)
+study/
+studies/
+my_study/
+estudo/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
