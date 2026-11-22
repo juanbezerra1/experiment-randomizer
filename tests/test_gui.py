@@ -119,7 +119,12 @@ def test_a_study_without_arms_has_no_arm_controls_and_one_without_conditions_no_
 
 def test_the_data_folder_button_falls_back_to_a_message(root, study, dialogs, monkeypatch):
     app = App(root, study, "en", confirm=False)
-    monkeypatch.setattr(subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(OSError("no")))
+
+    def no_file_manager(*args, **kwargs):
+        raise OSError("no")
+
+    monkeypatch.setattr(subprocess, "run", no_file_manager)  # macOS and Linux
+    monkeypatch.setattr(os, "startfile", no_file_manager, raising=False)  # Windows only
     assert open_folder(study.directory) is False
     app.show_folder()
     assert str(study.directory.resolve()) in dialogs["info"][0][1]
