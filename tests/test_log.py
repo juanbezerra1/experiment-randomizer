@@ -96,7 +96,8 @@ def test_read_entries_round_trips_what_format_row_writes(tmp_path):
 )
 def test_unreadable_logs_raise_log_error(tmp_path, text, message):
     path = tmp_path / "log.csv"
-    path.write_text(text, encoding="utf-8")
+    # newline="" keeps the \r\n above as written; in text mode Windows would make it \r\r\n
+    path.write_text(text, encoding="utf-8", newline="")
     with pytest.raises(LogError, match=message):
         read_entries(path, 2)
 
