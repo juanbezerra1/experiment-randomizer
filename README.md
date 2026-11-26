@@ -24,7 +24,7 @@ hand and nobody can say when. This project fixes each of those, with the standar
 | `Study` | a folder with the protocol and a log; `next()` writes the session to disk *before* returning it |
 | hash-chained log | every row carries a SHA-256 of the row before it, starting from the protocol; `exprand verify` finds edited, deleted, inserted and reordered rows |
 | `FileLock` | an operating-system lock, so two programs cannot draw the same session; it disappears with the process, so a crash never leaves a stale lock |
-| `exprand` command, `exprand gui` | a command line and a small window (English and Portuguese) on top of the same code |
+| `exprand` command, `exprand gui` | a command line and a small window (English, Portuguese and Spanish) on top of the same code |
 
 ![The window](docs/img/gui.png)
 
