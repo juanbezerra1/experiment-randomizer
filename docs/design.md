@@ -101,6 +101,18 @@ the whole log, build the next row, append it with a single `write`, flush and `f
 the lock. A crash can therefore leave a session that was logged but never looked at; it cannot
 leave one that was looked at but not logged.
 
+The lock is only as good as the file system under it, and a sync client can copy or duplicate the
+log behind the program's back. `exprand.placement` therefore looks at where the folder is, and the
+commands that write (`init`, `next`, `annotate`, `gui`) print a warning when it is a Windows UNC
+path or a drive that Windows reports as remote, a folder on an NFS, SMB/CIFS, sshfs or similar mount
+(the file system of the mount that holds the folder, from `/proc/self/mountinfo` or `mount`), or a
+folder of OneDrive, Dropbox, Google Drive or iCloud Drive (by the name of a path component, and the
+`OneDrive` environment variables on Windows). A link is followed first. It is advice only: nothing
+refuses to draw, the output of the other commands is untouched, the warning goes to stderr so that
+`--json` stays valid, and `EXPRAND_NO_LOCATION_WARNING=1` silences it. "No warning" means "not
+recognised", not "safe": other sync tools, and a sync client set up on a folder with an ordinary
+name, are not seen.
+
 ## 8. Not covered
 
 Allocation concealment, stratification, minimisation, and multi-site use. The log detects edits;

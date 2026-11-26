@@ -14,6 +14,7 @@ from . import __version__
 from .designs import DESIGNS
 from .lock import LockTimeout
 from .log import DRAW, LogError
+from .placement import folder_warnings
 from .protocol import Allocation, Protocol, draw
 from .study import Study
 
@@ -53,6 +54,12 @@ def _json(allocation: Allocation, row_hash: str | None = None) -> str:
     return json.dumps(data)
 
 
+def _warn_about_folder(directory: Path) -> None:
+    """Say, on stderr and without changing the exit status, if the folder is a risky place."""
+    for finding in folder_warnings(directory):
+        print(f"warning: {finding.message()}", file=sys.stderr)
+
+
 # -- commands ---------------------------------------------------------------------------------
 def cmd_init(args: argparse.Namespace) -> int:
     seed: dict[str, Any] = {} if args.seed is None else {"seed": args.seed}  # else: random
@@ -66,6 +73,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         **seed,
     )
     study = Study.init(args.dir, protocol)
+    _warn_about_folder(study.directory)
     print(f"created {study.protocol_path}")
     print(f"protocol hash  {protocol.hash}")
     print(f"seed           {protocol.seed}")
@@ -76,6 +84,7 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 def cmd_next(args: argparse.Namespace) -> int:
     study = Study(args.dir)
+    _warn_about_folder(study.directory)
     allocation = study.next(note=args.note or "")
     row_hash = study.entry_for(allocation.session).hash
     print(_json(allocation, row_hash) if args.json else _card(allocation, row_hash))
@@ -84,6 +93,7 @@ def cmd_next(args: argparse.Namespace) -> int:
 
 def cmd_annotate(args: argparse.Namespace) -> int:
     study = Study(args.dir)
+    _warn_about_folder(study.directory)
     study.annotate(args.session, args.text)
     print(f"noted on session {args.session:04d}")
     return 0
@@ -143,7 +153,9 @@ def cmd_gui(args: argparse.Namespace) -> int:
         from .gui import run
     except ImportError as exc:
         raise ValueError(f"the window needs tkinter, which is missing here: {exc}") from exc
-    run(Study(args.dir), language=args.lang)
+    study = Study(args.dir)
+    _warn_about_folder(study.directory)
+    run(study, language=args.lang)
     return 0
 
 

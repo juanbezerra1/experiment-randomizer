@@ -192,3 +192,76 @@ def test_the_window_command_explains_a_missing_tkinter(capsys, folder, monkeypat
     monkeypatch.setitem(sys.modules, "tkinter", None)  # makes ``import tkinter`` fail
     code, _, err = run(capsys, "gui", "--dir", folder)
     assert code == 2 and "needs tkinter" in err
+
+
+# -- warnings about a network or synced folder: advice on stderr, never a change of behaviour ---
+def risky_place(monkeypatch, *findings):
+    monkeypatch.setattr("exprand.cli.folder_warnings", lambda directory: list(findings))
+
+
+def test_a_local_folder_changes_nothing_and_prints_no_warning(capsys, folder, monkeypatch):
+    from exprand import placement
+
+    monkeypatch.delenv(placement.SILENCE_VARIABLE, raising=False)
+    monkeypatch.setattr(placement, "read_mounts", lambda system: [("/", "ext4")])
+    monkeypatch.setattr(placement, "windows_drive_is_remote", lambda drive: False)
+    assert init(capsys, folder)[2] == ""
+    for args in (("next",), ("next", "--json"), ("annotate", 1, "x")):
+        code, _, err = run(capsys, *args, "--dir", folder)
+        assert code == 0 and err == ""
+
+
+def test_init_next_and_annotate_warn_on_stderr_and_keep_stdout_and_the_exit_status(
+    capsys, folder, monkeypatch
+):
+    from exprand import Finding
+
+    risky_place(monkeypatch, Finding("synced", "Dropbox"))
+    code, out, err = init(capsys, folder)
+    assert code == 0 and err.startswith("warning: ") and "Dropbox" in err
+    assert "created" in out and "warning" not in out
+    code, out, err = run(capsys, "next", "--dir", folder, "--json")
+    assert code == 0 and "Dropbox" in err
+    assert json.loads(out)["session"] == 1  # stdout is still exactly the JSON
+    code, out, err = run(capsys, "annotate", 1, "not run", "--dir", folder)
+    assert code == 0 and "Dropbox" in err and out == "noted on session 0001\n"
+    assert Study(folder).verify().ok  # drawing went on as usual
+
+
+def test_every_warning_is_printed_and_the_gui_command_warns_too(capsys, folder, monkeypatch):
+    pytest.importorskip("tkinter")
+    import exprand.gui as gui
+    from exprand import Finding
+
+    init(capsys, folder)
+    risky_place(monkeypatch, Finding("network", "unc"), Finding("synced", "OneDrive"))
+    opened = []
+    monkeypatch.setattr(gui, "run", lambda study, language=None: opened.append(study))
+    code, _, err = run(capsys, "gui", "--dir", folder)
+    assert code == 0 and len(opened) == 1  # the window still opens
+    assert err.count("warning: ") == 2 and "UNC" in err and "OneDrive" in err
+
+
+def test_the_commands_that_only_read_do_not_warn(capsys, folder, monkeypatch):
+    from exprand import Finding
+
+    init(capsys, folder)
+    run(capsys, "next", "--dir", folder)
+    risky_place(monkeypatch, Finding("network", "unc"))
+    for args in (("show",), ("plan", 3), ("verify",), ("head",)):
+        code, _, err = run(capsys, *args, "--dir", folder)
+        assert code == 0 and err == "", args
+
+
+def test_the_warning_can_be_silenced_for_a_folder_that_is_known_to_be_fine(
+    capsys, folder, monkeypatch
+):
+    from exprand import placement
+
+    monkeypatch.setattr(placement, "read_mounts", lambda system: [("/", "nfs4")])
+    monkeypatch.setattr(placement, "windows_drive_is_remote", lambda drive: True)
+    monkeypatch.delenv(placement.SILENCE_VARIABLE, raising=False)
+    assert "warning" in init(capsys, folder)[2]  # the real detection, on a "network" disk
+    monkeypatch.setenv(placement.SILENCE_VARIABLE, "1")
+    code, _, err = run(capsys, "next", "--dir", folder)
+    assert code == 0 and err == ""

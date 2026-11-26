@@ -150,7 +150,13 @@ consegue forjar tudo.
   deixe o protocolo com uma terceira pessoa e dê a quem recruta só o `exprand next`.
 * **Só em disco local.** O bloqueio é um bloqueio de arquivo do sistema operacional, confiável em
   disco local mas não em qualquer pasta de rede, e uma pasta sincronizada (Dropbox, OneDrive) pode
-  criar cópias em conflito do registro. Sorteie numa pasta local e copie o resultado.
+  criar cópias em conflito do registro. Sorteie numa pasta local e copie o resultado. O
+  `exprand init`, `next`, `annotate` e `gui` avisam (no stderr, e na janela como uma nota; nunca
+  se recusam a sortear, e uma pasta local não recebe nada) quando a pasta é um compartilhamento ou
+  uma unidade de rede do Windows, um ponto de montagem NFS ou SMB, ou uma pasta do OneDrive,
+  Dropbox, Google Drive ou iCloud Drive. Outras ferramentas de sincronização não são reconhecidas,
+  então a falta de aviso não significa que a pasta é segura. `EXPRAND_NO_LOCATION_WARNING=1`
+  silencia o aviso.
 * **Não salve o registro de novo pela planilha.** Abrir não tem problema. Salvar pode reescrever
   datas e células como `1-2-3` (que vira data), e o `verify` vai (com razão) reclamar.
 * **Só códigos de participante.** O registro tem uma `note` de texto livre; nunca ponha nomes nem

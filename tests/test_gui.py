@@ -128,3 +128,24 @@ def test_the_data_folder_button_falls_back_to_a_message(root, study, dialogs, mo
     assert open_folder(study.directory) is False
     app.show_folder()
     assert str(study.directory.resolve()) in dialogs["info"][0][1]
+
+
+def test_a_network_or_synced_folder_gets_a_standing_note_that_never_blocks(
+    root, study, dialogs, monkeypatch
+):
+    from exprand import Finding
+
+    findings = [Finding("synced", "OneDrive"), Finding("network", "unc")]
+    monkeypatch.setattr("exprand.gui.folder_warnings", lambda directory: findings)
+    app = App(root, study, "en", confirm=False)
+    note = app.location_note.cget("text")
+    assert "OneDrive" in note and "UNC" in note
+    portuguese = App(root, study, "pt", confirm=False).location_note.cget("text")
+    assert "sincronizada" in portuguese and "UNC" in portuguese
+    app.new_session()  # the note is advice: a draw still works, and no dialog got in the way
+    assert len(study.entries()) == 1 and not dialogs["error"] and not dialogs["info"]
+
+
+def test_a_local_folder_gets_no_note(root, study, monkeypatch):
+    monkeypatch.setattr("exprand.gui.folder_warnings", lambda directory: [])
+    assert App(root, study, "en", confirm=False).location_note is None

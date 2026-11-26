@@ -145,7 +145,11 @@ key, so a determined person with write access and no external record can forge e
   keep the protocol with a third party and give the enrolling person only `exprand next`.
 * **Local disks only.** The lock is an operating-system file lock, reliable on a local drive but
   not on every network share, and a synced folder (Dropbox, OneDrive) can create conflicted copies
-  of the log. Draw on a local folder and copy the result.
+  of the log. Draw on a local folder and copy the result. `exprand init`, `next`, `annotate` and
+  `gui` warn about it (on stderr, in the window as a note; they never refuse, and a local folder
+  gets nothing) when the folder is a Windows network share or drive, an NFS or SMB mount, or a
+  folder of OneDrive, Dropbox, Google Drive or iCloud Drive. Other sync tools are not recognised,
+  so no warning does not mean the folder is safe. `EXPRAND_NO_LOCATION_WARNING=1` silences it.
 * **Do not re-save the log from a spreadsheet.** Opening it is fine. Saving can rewrite
   timestamps and cells such as `1-2-3` as dates, and `verify` will then (correctly) complain.
 * **Participant codes only.** The log has a free-text `note`; never put names or other identifiers
