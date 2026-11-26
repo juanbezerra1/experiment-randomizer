@@ -100,6 +100,15 @@ def test_portuguese_labels(root, study):
     assert app.status.cget("text") == "Registrado no log (sessão 1)."
 
 
+def test_spanish_labels(root, study):
+    app = App(root, study, "es", confirm=False)
+    assert root.title() == "Aleatorizador del experimento"
+    assert app.session_label.cget("text") == "Sesión: —"
+    assert app.arm_value.cget("text") == "(oculto)"
+    app.new_session()
+    assert app.status.cget("text") == "Guardado en el registro (sesión 1)."
+
+
 def test_a_study_without_arms_has_no_arm_controls_and_one_without_conditions_no_rounds(
     root, tmp_path
 ):

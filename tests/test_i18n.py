@@ -9,11 +9,16 @@ def fields(text):
     return sorted(name for _, name, _, _ in string.Formatter().parse(text) if name)
 
 
-def test_both_languages_have_the_same_keys_and_placeholders():
-    en, pt = i18n.STRINGS["en"], i18n.STRINGS["pt"]
-    assert en.keys() == pt.keys()
+def test_every_language_has_strings():
+    assert i18n.STRINGS.keys() == set(i18n.LANGUAGES)
+
+
+@pytest.mark.parametrize("language", [code for code in i18n.LANGUAGES if code != "en"])
+def test_every_language_has_the_same_keys_and_placeholders_as_english(language):
+    en, other = i18n.STRINGS["en"], i18n.STRINGS[language]
+    assert en.keys() == other.keys()
     for key in en:
-        assert fields(en[key]) == fields(pt[key]), key
+        assert fields(en[key]) == fields(other[key]), key
 
 
 def test_every_string_formats_with_its_own_placeholders():
@@ -30,6 +35,9 @@ def test_every_string_formats_with_its_own_placeholders():
         ("en", "pt_BR.UTF-8", "en"),
         ("", "pt_BR.UTF-8", "pt"),
         ("", "en_US.UTF-8", "en"),
+        ("es", "pt_BR.UTF-8", "es"),
+        ("", "es_AR.UTF-8", "es"),
+        ("", "", "en"),
         ("fr", "", "en"),
     ],
 )

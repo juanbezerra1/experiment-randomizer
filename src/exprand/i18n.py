@@ -1,4 +1,4 @@
-"""The few words the window shows, in English and Brazilian Portuguese."""
+"""The few words the window shows, in English, Brazilian Portuguese and Spanish."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import os
 
 __all__ = ["LANGUAGES", "STRINGS", "default_language", "t"]
 
-LANGUAGES = ("en", "pt")
+LANGUAGES = ("en", "pt", "es")
 
 STRINGS: dict[str, dict[str, str]] = {
     "en": {
@@ -63,11 +63,38 @@ STRINGS: dict[str, dict[str, str]] = {
         "error": "Erro",
         "info": "Informação",
     },
+    "es": {
+        "window_title": "Aleatorizador del experimento",
+        "protocol": "{arms} brazos · {conditions} condiciones · {rounds} rondas",
+        "protocol_arms_only": "{arms} brazos",
+        "protocol_orders_only": "{conditions} condiciones · {rounds} rondas",
+        "session": "Sesión: {n}",
+        "no_session": "Sesión: —",
+        "arm_frame": "Brazo",
+        "arm_hidden": "(oculto)",
+        "reveal_arm": "Revelar brazo",
+        "rounds_frame": "Orden de las condiciones en cada ronda",
+        "round": "Ronda {i}",
+        "new_session": "Nueva sesión",
+        "confirm_new": (
+            "¿Sortear y registrar una nueva sesión?\n"
+            "Cada sorteo es permanente y nunca se reutiliza."
+        ),
+        "open_folder": "Abrir carpeta de datos",
+        "folder_message": "Los datos están en:\n{path}",
+        "verify": "Verificar registro",
+        "verify_ok": "Registro verificado: {n} sesiones, nada fue alterado.",
+        "verify_bad": "Problemas encontrados:\n{problems}",
+        "logged": "Guardado en el registro (sesión {n}).",
+        "ready": "Listo. No se sortea nada hasta que pulse “Nueva sesión”.",
+        "error": "Error",
+        "info": "Información",
+    },
 }
 
 
 def default_language() -> str:
-    """``EXPRAND_LANG`` if set, else Portuguese for a Portuguese locale, else English."""
+    """``EXPRAND_LANG`` if set, else the locale's language if it is one of ours, else English."""
     forced = os.environ.get("EXPRAND_LANG", "").lower()
     if forced in LANGUAGES:
         return forced
@@ -75,7 +102,7 @@ def default_language() -> str:
         name = locale.getlocale()[0] or os.environ.get("LANG", "")
     except ValueError:  # pragma: no cover - a locale string the platform cannot parse
         name = os.environ.get("LANG", "")
-    return "pt" if name.lower().startswith("pt") else "en"
+    return next((code for code in LANGUAGES if name.lower().startswith(code)), "en")
 
 
 def t(language: str, key: str, **values: object) -> str:

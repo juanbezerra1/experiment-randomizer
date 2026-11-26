@@ -25,7 +25,7 @@ problemas usando só a biblioteca padrão.
 | `Study` | uma pasta com o protocolo e um registro; `next()` grava a sessão no disco *antes* de devolvê-la |
 | registro encadeado por hash | cada linha traz o SHA-256 da linha anterior, começando pelo protocolo; `exprand verify` acha linhas editadas, apagadas, inseridas e reordenadas |
 | `FileLock` | um bloqueio do sistema operacional, para que dois programas não sorteiem a mesma sessão; ele some junto com o processo, então uma queda nunca deixa um bloqueio velho para trás |
-| comando `exprand`, `exprand gui` | uma linha de comando e uma janelinha (em inglês e português) sobre o mesmo código |
+| comando `exprand`, `exprand gui` | uma linha de comando e uma janelinha (em inglês, português e espanhol) sobre o mesmo código |
 
 ![A janela](docs/img/gui.png)
 

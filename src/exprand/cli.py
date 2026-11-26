@@ -12,6 +12,7 @@ from typing import Any
 
 from . import __version__
 from .designs import DESIGNS
+from .i18n import LANGUAGES
 from .lock import LockTimeout
 from .log import DRAW, LogError
 from .protocol import Allocation, Protocol, draw
@@ -197,7 +198,7 @@ def build_parser() -> argparse.ArgumentParser:
     add("head", cmd_head, "print the latest chain hash (write it down somewhere else)")
 
     p = add("gui", cmd_gui, "open the window")
-    p.add_argument("--lang", choices=("en", "pt"), help="window language")
+    p.add_argument("--lang", choices=LANGUAGES, help="window language")
     return parser
 
 
