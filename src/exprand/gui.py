@@ -20,6 +20,7 @@ from tkinter import messagebox
 from .i18n import default_language, t
 from .lock import LockTimeout
 from .log import LogError
+from .placement import folder_warnings
 from .protocol import Allocation
 from .study import Study
 
@@ -106,6 +107,15 @@ class App:
         )
         self.status = tk.Label(root, text=self.tr("ready"), wraplength=520)
         self.status.pack(pady=(0, 10))
+
+        # A network or synced folder gets a standing note, not a dialog: it never blocks a draw.
+        self.location_note: tk.Label | None = None
+        notes = [finding.message(self.language) for finding in folder_warnings(study.directory)]
+        if notes:
+            self.location_note = tk.Label(
+                root, text="\n\n".join(notes), wraplength=520, justify="left", fg="#8a4b00"
+            )
+            self.location_note.pack(padx=12, pady=(0, 10))
 
     # -- text ---------------------------------------------------------------------------------
     def tr(self, key: str, **values: object) -> str:
