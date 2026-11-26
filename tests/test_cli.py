@@ -175,15 +175,18 @@ def test_output_survives_a_console_that_cannot_print_every_character(capsys, fol
     assert code == 0 and "caf" in out
 
 
-def test_the_window_command_hands_over_the_study_and_the_language(capsys, folder, monkeypatch):
+@pytest.mark.parametrize("language", ["en", "pt", "es"])
+def test_the_window_command_hands_over_the_study_and_the_language(
+    capsys, folder, monkeypatch, language
+):
     pytest.importorskip("tkinter")
     import exprand.gui as gui
 
     init(capsys, folder)
     calls = []
     monkeypatch.setattr(gui, "run", lambda study, language=None: calls.append((study, language)))
-    assert main(["gui", "--dir", str(folder), "--lang", "pt"]) == 0
-    assert calls[0][0].directory == folder and calls[0][1] == "pt"
+    assert main(["gui", "--dir", str(folder), "--lang", language]) == 0
+    assert calls[0][0].directory == folder and calls[0][1] == language
 
 
 def test_the_window_command_explains_a_missing_tkinter(capsys, folder, monkeypatch):
